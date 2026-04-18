@@ -1,6 +1,6 @@
 <div align="center">
 
-# 🤖🌸✨ Lil Agents Win
+# Lil Agents - Win
 
 **Tiny AI companions that live above your Windows taskbar.**
 
