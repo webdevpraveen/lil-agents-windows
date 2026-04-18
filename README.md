@@ -20,11 +20,11 @@ fight with each other, and chat with you — powered by **Groq AI (100% free).**
 
 ## 👥 Meet the Crew
 
-| Character | Full Name | Personality | Color |
-|-----------|-----------|-------------|-------|
-| 🤖 **Sunny** | Sundram | Energetic, bold, uses *bhai/yaar*, solution-focused | Amber |
-| 🌸 **Anku** | Ankita | Warm, bubbly, creative, supportive, uses *na/yaar* | Rose |
-| ✨ **Somu** | Saumya | Calm, wise, precise, serene, ghost/spirit design | Purple |
+| Character | Personality | Color |
+|-----------|-------------|-------|
+| 🤖 **Sunny** | Energetic, bold, uses *bhai/yaar*, solution-focused | Amber |
+| 🌸 **Anku** | Warm, bubbly, creative, supportive, uses *na/yaar* | Rose |
+| ✨ **Somu** | Calm, wise, precise, serene, ghost/spirit design | Purple |
 
 All three **share memory** — if you tell Sunny about a project, Anku and Somu will know about it too.
 
