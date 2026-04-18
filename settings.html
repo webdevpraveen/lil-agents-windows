@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+:root { --bg:#0b0b14; --surf:#13131f; --bdr:#1e1e30; --text:#e2e4f0; --muted:#5a5a7a; --acc:#F59E0B; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; border-radius:16px; border:1px solid var(--bdr); overflow:hidden; }
+#hdr { background:var(--surf); padding:0 16px; height:52px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--bdr); -webkit-app-region:drag; flex-shrink:0; border-radius:16px 16px 0 0; }
+#hdr h2 { font-size:14px; font-weight:600; -webkit-app-region:no-drag; }
+.cls { background:none; border:none; color:var(--muted); cursor:pointer; font-size:14px; -webkit-app-region:no-drag; padding:6px 9px; border-radius:7px; transition:all .15s; }
+.cls:hover { background:rgba(239,68,68,.15); color:#EF4444; }
+.body { padding:22px; display:flex; flex-direction:column; gap:16px; flex:1; overflow-y:auto; }
+.section-title { font-size:11px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+.chars { display:flex; gap:8px; margin-top:8px; }
+.cc { flex:1; background:var(--surf); border:1px solid var(--bdr); border-radius:11px; padding:12px 8px; text-align:center; }
+.cc .em { font-size:22px; margin-bottom:5px; }
+.cc .nn { font-size:11px; font-weight:600; }
+.cc .fn { font-size:9px; color:var(--muted); margin-top:1px; }
+.field { display:flex; flex-direction:column; gap:6px; }
+label { font-size:12px; color:var(--muted); }
+.irow { display:flex; gap:8px; }
+input { flex:1; background:var(--surf); border:1px solid var(--bdr); border-radius:10px; color:var(--text); padding:11px 13px; font-size:12px; font-family:'Courier New',monospace; outline:none; transition:border-color .2s; }
+input:focus { border-color:var(--acc); }
+input::placeholder { color:var(--muted); }
+.eyb { background:var(--surf); border:1px solid var(--bdr); border-radius:10px; color:var(--muted); cursor:pointer; padding:11px 12px; font-size:13px; transition:all .15s; }
+.eyb:hover { color:#fff; border-color:var(--bdr); }
+.note { font-size:11px; color:var(--muted); line-height:1.75; background:var(--surf); border:1px solid var(--bdr); border-radius:10px; padding:13px; }
+.note strong { color:#fff; } .note a { color:#60A5FA; cursor:pointer; text-decoration:underline; }
+.save-btn { background:var(--acc); border:none; border-radius:11px; color:#000; padding:13px; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
+.save-btn:hover { filter:brightness(1.1); }
+.st { font-size:11px; padding:8px 12px; border-radius:8px; display:none; margin-top:-4px; }
+.st.ok  { background:rgba(74,222,128,.1);  border:1px solid rgba(74,222,128,.2);  color:#4ADE80; }
+.st.err { background:rgba(239,68,68,.1);   border:1px solid rgba(239,68,68,.2);   color:#EF4444; }
+</style>
+</head>
+<body>
+<div id="hdr">
+  <h2>⚙️ Settings — Lil Agents</h2>
+  <button class="cls" onclick="window.electronAPI.closeWindow()">✕</button>
+</div>
+<div class="body">
+
+  <div>
+    <div class="section-title">Praveen's Crew</div>
+    <div class="chars">
+      <div class="cc"><div class="em">🤖</div><div class="nn" style="color:#FCD34D">Sunny</div><div class="fn">Sundram · Male</div></div>
+      <div class="cc"><div class="em">🌸</div><div class="nn" style="color:#FDA4AF">Anku</div><div class="fn">Ankita · Female</div></div>
+      <div class="cc"><div class="em">✨</div><div class="nn" style="color:#C4B5FD">Somu</div><div class="fn">Saumya · Female</div></div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label>Groq API Key &nbsp;<span style="color:#4ADE80;font-size:10px">(100% Free — no credit card)</span></label>
+    <div class="irow">
+      <input id="kv" type="password" placeholder="gsk_..." spellcheck="false" autocomplete="off"/>
+      <button class="eyb" onclick="toggleEye()">👁</button>
+    </div>
+    <div class="st" id="st"></div>
+  </div>
+
+  <div class="note">
+    ⚡ Get your <strong>free</strong> Groq API key at<br>
+    <a onclick="openLink('https://console.groq.com/keys')">console.groq.com/keys</a><br><br>
+    Model: <strong>llama-3.1-8b-instant</strong> — blazing fast, generous free tier.<br>
+    No billing setup · No credit card · Works immediately.
+  </div>
+
+  <button class="save-btn" onclick="save()">💾 Save API Key</button>
+</div>
+
+<script>
+'use strict';
+function openLink(url) { window.electronAPI.openExternal(url); }
+function toggleEye() { const i=document.getElementById('kv'); i.type=i.type==='password'?'text':'password'; }
+
+async function init() {
+  const cfg = await window.electronAPI.getConfig();
+  if (cfg.apiKey) document.getElementById('kv').value = cfg.apiKey;
+}
+
+async function save() {
+  const k = document.getElementById('kv').value.trim();
+  const st = document.getElementById('st');
+  if (!k) { st.className='st err'; st.textContent='Please enter your API key.'; st.style.display='block'; return; }
+  if (!k.startsWith('gsk_')) { st.className='st err'; st.textContent='Groq keys start with "gsk_"'; st.style.display='block'; return; }
+  await window.electronAPI.saveConfig({ apiKey: k });
+  st.className='st ok'; st.textContent='✓ Saved! Your crew is ready.'; st.style.display='block';
+  setTimeout(() => window.electronAPI.closeWindow(), 1400);
+}
+
+document.getElementById('kv').addEventListener('keydown', e => { if(e.key==='Enter') save(); });
+init();
+</script>
+</body>
+</html>

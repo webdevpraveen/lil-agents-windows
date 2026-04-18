@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://fonts.gstatic.com; connect-src https://api.groq.com;">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Mono&display=swap');
+:root { --acc: #F59E0B; --bg: #0d0d1a; --surf: #13131f; --bdr: #1e1e30; --text: #e2e4f0; --muted: #5a5a7a; --r: 14px; }
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:'Inter',system-ui,sans-serif; background:var(--bg); color:var(--text); height:100vh; display:flex; flex-direction:column; overflow:hidden; border-radius:var(--r); border:1px solid var(--bdr); box-shadow:0 20px 60px rgba(0,0,0,.7); }
+
+/* Header */
+#hdr { background:var(--surf); padding:0 12px; height:50px; display:flex; align-items:center; justify-content:space-between; border-bottom:1px solid var(--bdr); flex-shrink:0; -webkit-app-region:drag; border-radius:var(--r) var(--r) 0 0; }
+.left { display:flex; align-items:center; gap:9px; -webkit-app-region:no-drag; }
+.av { width:32px; height:32px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:18px; }
+.hi h2 { font-size:13px; font-weight:600; color:#fff; }
+.hi .sub { font-size:9px; font-family:'Space Mono',monospace; color:var(--muted); margin-top:1px; }
+.dot { width:6px; height:6px; border-radius:50%; background:#4ADE80; animation:pd 2s infinite; }
+@keyframes pd { 0%,100%{opacity:1}50%{opacity:.5} }
+.hbtns { display:flex; gap:4px; -webkit-app-region:no-drag; }
+.hbtn { background:none; border:none; color:var(--muted); cursor:pointer; width:26px; height:26px; border-radius:7px; display:flex; align-items:center; justify-content:center; font-size:12px; transition:all .15s; }
+.hbtn:hover { background:rgba(255,255,255,.08); color:#fff; }
+.hbtn.exp:hover { background:rgba(59,130,246,.15); color:#60A5FA; }
+.hbtn.cls:hover { background:rgba(239,68,68,.15); color:#EF4444; }
+
+/* Setup screen */
+#setup { flex:1; display:none; flex-direction:column; align-items:center; justify-content:center; padding:22px 18px; gap:12px; text-align:center; }
+#setup h3 { font-size:15px; font-weight:600; color:#fff; }
+#setup p { font-size:11px; color:var(--muted); line-height:1.75; max-width:250px; }
+#setup a { color:var(--acc); cursor:pointer; text-decoration:underline; }
+.iw { width:100%; position:relative; }
+#akey { width:100%; background:var(--surf); border:1px solid var(--bdr); border-radius:9px; color:var(--text); padding:10px 34px 10px 12px; font-size:11px; font-family:'Space Mono',monospace; outline:none; transition:border-color .2s; }
+#akey:focus { border-color:var(--acc); }
+#akey::placeholder { color:var(--muted); }
+.eyb { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:var(--muted); cursor:pointer; font-size:12px; }
+.save-btn { width:100%; background:var(--acc); border:none; border-radius:9px; color:#000; padding:11px; font-size:13px; font-weight:600; cursor:pointer; transition:all .2s; font-family:'Inter',sans-serif; }
+.save-btn:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.steps { display:flex; flex-direction:column; gap:5px; align-self:stretch; text-align:left; }
+.step { display:flex; gap:7px; align-items:flex-start; font-size:10px; color:var(--muted); }
+.sn { background:var(--bdr); border-radius:50%; width:15px; height:15px; display:flex; align-items:center; justify-content:center; font-size:8px; flex-shrink:0; color:var(--text); }
+.emsg { font-size:10px; color:#EF4444; display:none; align-self:flex-start; }
+
+/* Messages */
+#msgs { flex:1; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:8px; scroll-behavior:smooth; }
+#msgs::-webkit-scrollbar { width:3px; }
+#msgs::-webkit-scrollbar-thumb { background:var(--bdr); border-radius:2px; }
+.msg { max-width:90%; padding:9px 12px; border-radius:11px; font-size:12px; line-height:1.55; word-wrap:break-word; animation:mi .18s ease-out; }
+@keyframes mi { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:translateY(0)} }
+.msg.user { background:#1a2a4a; border:1px solid rgba(59,130,246,.2); color:#c7d8f8; align-self:flex-end; border-bottom-right-radius:3px; }
+.msg.ai   { background:var(--surf); border:1px solid var(--bdr); color:var(--text); align-self:flex-start; border-bottom-left-radius:3px; }
+.msg.err  { background:rgba(239,68,68,.07); border:1px solid rgba(239,68,68,.2); color:#FCA5A5; }
+
+/* Typing indicator */
+.think { align-self:flex-start; display:flex; align-items:center; gap:3px; padding:9px 13px; background:var(--surf); border:1px solid var(--bdr); border-radius:11px; border-bottom-left-radius:3px; animation:mi .18s ease-out; }
+.think span { width:5px; height:5px; border-radius:50%; background:var(--acc); animation:tb 1.1s ease-in-out infinite; }
+.think span:nth-child(2) { animation-delay:.18s; }
+.think span:nth-child(3) { animation-delay:.36s; }
+@keyframes tb { 0%,60%,100%{transform:translateY(0);opacity:.3}30%{transform:translateY(-5px);opacity:1} }
+
+/* Input */
+#ia { padding:10px; background:var(--surf); border-top:1px solid var(--bdr); display:flex; gap:7px; align-items:flex-end; flex-shrink:0; border-radius:0 0 var(--r) var(--r); }
+#mi { flex:1; background:var(--bg); border:1px solid var(--bdr); border-radius:9px; color:var(--text); padding:9px 12px; font-size:12px; font-family:'Inter',sans-serif; resize:none; min-height:36px; max-height:80px; outline:none; transition:border-color .2s; line-height:1.4; }
+#mi:focus { border-color:var(--acc); }
+#mi::placeholder { color:var(--muted); }
+#sb { background:var(--acc); border:none; border-radius:9px; color:#000; width:36px; height:36px; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all .2s; font-size:15px; font-weight:700; }
+#sb:hover:not(:disabled) { filter:brightness(1.1); transform:scale(1.05); }
+#sb:disabled { background:var(--bdr); color:var(--muted); cursor:not-allowed; transform:none; }
+</style>
+</head>
+<body>
+
+<div id="hdr">
+  <div class="left">
+    <div class="av" id="av"></div>
+    <div class="hi"><h2 id="cn">Sunny</h2><div class="sub">groq · llama-3.1-8b · free</div></div>
+    <div class="dot"></div>
+  </div>
+  <div class="hbtns">
+    <button class="hbtn exp" title="Expand to full chat" onclick="doExpand()">⤢</button>
+    <button class="hbtn cls" title="Close" onclick="window.electronAPI.closeWindow()">✕</button>
+  </div>
+</div>
+
+<!-- First-run setup screen -->
+<div id="setup">
+  <div style="font-size:36px">⚡</div>
+  <h3>Connect to Groq AI</h3>
+  <p>Groq is <strong style="color:#fff">100% free</strong> — fastest AI available, no credit card needed!</p>
+  <div class="steps">
+    <div class="step"><div class="sn">1</div><span>Go to <a onclick="openGroqLink()">console.groq.com/keys</a></span></div>
+    <div class="step"><div class="sn">2</div><span>Sign up free → click "Create API Key"</span></div>
+    <div class="step"><div class="sn">3</div><span>Paste your key below — that's it!</span></div>
+  </div>
+  <div class="iw">
+    <input id="akey" type="password" placeholder="gsk_..." autocomplete="off" spellcheck="false"/>
+    <button class="eyb" onclick="toggleEye()">👁</button>
+  </div>
+  <div class="emsg" id="emsg">Groq keys start with "gsk_"</div>
+  <button class="save-btn" onclick="saveKey()">Save &amp; Let's Chat →</button>
+</div>
+
+<div id="msgs" style="display:none"></div>
+<div id="ia"   style="display:none">
+  <textarea id="mi" placeholder="Chat with me... (Enter to send)" rows="1"></textarea>
+  <button id="sb" onclick="send()">➤</button>
+</div>
+
+<script>
+'use strict';
+
+const CHARS = {
+  sunny: { e:'🤖', n:'Sunny', fn:'Sundram', a:'#F59E0B', bg:'#78350F' },
+  anku:  { e:'🌸', n:'Anku',  fn:'Ankita',  a:'#F43F5E', bg:'#9F1239' },
+  somu:  { e:'✨', n:'Somu',  fn:'Saumya',  a:'#7C3AED', bg:'#4C1D95' }
+};
+
+const params = new URLSearchParams(window.location.search);
+const charId = params.get('char') || 'sunny';
+const ch = CHARS[charId] || CHARS.sunny;
+
+// Apply character theme
+document.querySelector(':root').style.setProperty('--acc', ch.a);
+document.getElementById('av').textContent = ch.e;
+document.getElementById('av').style.background = ch.bg;
+document.getElementById('cn').textContent = ch.n;
+
+let msgs = [], busy = false;
+const msgsEl = document.getElementById('msgs');
+const inp    = document.getElementById('mi');
+const sbtn   = document.getElementById('sb');
+
+function openGroqLink() { window.electronAPI.openExternal('https://console.groq.com/keys'); }
+function toggleEye() { const i = document.getElementById('akey'); i.type = i.type === 'password' ? 'text' : 'password'; }
+
+async function saveKey() {
+  const k = document.getElementById('akey').value.trim();
+  const errEl = document.getElementById('emsg');
+  if (!k.startsWith('gsk_')) { errEl.style.display = 'block'; return; }
+  errEl.style.display = 'none';
+  await window.electronAPI.saveConfig({ apiKey: k });
+  showChat();
+}
+
+function addMsg(role, text) {
+  const d = document.createElement('div');
+  d.className = 'msg ' + role;
+  d.textContent = text;
+  msgsEl.appendChild(d);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+  return d;
+}
+
+function showThink() {
+  const d = document.createElement('div');
+  d.id = 'thk'; d.className = 'think';
+  d.innerHTML = '<span></span><span></span><span></span>';
+  msgsEl.appendChild(d);
+  msgsEl.scrollTop = msgsEl.scrollHeight;
+}
+
+function hideThink() { document.getElementById('thk')?.remove(); }
+
+function showChat() {
+  document.getElementById('setup').style.display = 'none';
+  msgsEl.style.display = 'flex';
+  document.getElementById('ia').style.display = 'flex';
+  const greet = {
+    sunny: `Bhai Praveen! Sunny here 🤖 Kya build kar rahe ho aaj?`,
+    anku:  `Praveeeen!! Anku here! 💕 Kya haal hai? Tell me everything~`,
+    somu:  `Praveen. ✨ Somu here. What's on your mind today?`
+  };
+  addMsg('ai', greet[charId]);
+  inp.focus();
+}
+
+async function send() {
+  const text = inp.value.trim();
+  if (!text || busy) return;
+
+  inp.value = '';
+  inp.style.height = 'auto';
+  msgs.push({ role: 'user', content: text });
+  addMsg('user', text);
+
+  busy = true; sbtn.disabled = true;
+  showThink();
+
+  const res = await window.electronAPI.sendMessage({ messages: msgs, charId });
+
+  hideThink();
+  busy = false; sbtn.disabled = false;
+
+  if (res.success) {
+    msgs.push({ role: 'assistant', content: res.text });
+    addMsg('ai', res.text);
+  } else {
+    addMsg('err', '⚠️ ' + res.error);
+  }
+
+  inp.focus();
+}
+
+function doExpand() { window.electronAPI.expandChat(charId, msgs); }
+
+// Auto-resize textarea
+inp.addEventListener('input', () => {
+  inp.style.height = 'auto';
+  inp.style.height = Math.min(inp.scrollHeight, 80) + 'px';
+});
+
+inp.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); send(); }
+});
+
+document.getElementById('akey').addEventListener('keydown', e => {
+  if (e.key === 'Enter') saveKey();
+});
+
+// Restore messages when expanding from mini → full
+window.electronAPI.onRestoreMessages(existMsgs => {
+  msgs = [...existMsgs];
+  existMsgs.forEach(m => { if (m.role !== 'system') addMsg(m.role, m.content); });
+});
+
+async function init() {
+  const cfg = await window.electronAPI.getConfig();
+  if (cfg.apiKey) showChat();
+  else document.getElementById('setup').style.display = 'flex';
+}
+
+init();
+</script>
+</body>
+</html>

@@ -1,0 +1,36 @@
+{
+  "name": "lil-agents-win",
+  "version": "1.0.0",
+  "description": "Tiny AI companions (Sunny, Anku & Somu) that live above your Windows taskbar — powered by Groq AI, completely free.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --enable-logging"
+  },
+  "keywords": [
+    "electron",
+    "ai",
+    "desktop-pet",
+    "groq",
+    "windows",
+    "companion",
+    "taskbar",
+    "pixel-art"
+  ],
+  "author": "Praveen Singh (webdevpraveen) <https://github.com/webdevpraveen>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/webdevpraveen/lil-agents-win.git"
+  },
+  "bugs": {
+    "url": "https://github.com/webdevpraveen/lil-agents-win/issues"
+  },
+  "homepage": "https://github.com/webdevpraveen/lil-agents-win#readme",
+  "devDependencies": {
+    "electron": "^28.3.3"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

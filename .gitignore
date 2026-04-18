@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+out/
+build/
+
+# OS files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Editor
+.vscode/
+.idea/
+*.suo
+*.user
+
+# Logs
+*.log
+npm-debug.log*
+electron-debug.log*
+
+# Runtime data — API key is stored in Electron's userData, NOT here
+# (Windows: %APPDATA%\lil-agents-win\config.json)
+config.json
